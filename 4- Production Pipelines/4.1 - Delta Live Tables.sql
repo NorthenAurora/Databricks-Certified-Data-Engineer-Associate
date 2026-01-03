@@ -36,9 +36,10 @@ AS SELECT * FROM cloud_files("/Volumes/dev/default/bookstore/orders-json-raw", "
 
 -- COMMAND ----------
 
-CREATE OR REFRESH LIVE TABLE customers
+CREATE OR REFRESH STREAMING LIVE TABLE customers
 COMMENT "The customers lookup table, ingested from customers-json"
-AS SELECT * FROM json.`/Volumes/dev/default/bookstore/customers-json`
+AS SELECT * FROM cloud_files("/Volumes/dev/default/bookstore/customers-json", "json",
+                             map("cloudFiles.inferColumnTypes", "true"))
 
 -- COMMAND ----------
 
