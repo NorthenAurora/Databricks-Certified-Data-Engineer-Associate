@@ -36,9 +36,10 @@ AS SELECT * FROM cloud_files("/Volumes/dev/default/bookstore/orders-json-raw", "
 
 -- COMMAND ----------
 
-CREATE OR REFRESH LIVE TABLE customers
+CREATE OR REFRESH STREAMING LIVE TABLE customers
 COMMENT "The customers lookup table, ingested from customers-json"
-AS SELECT * FROM json.`/Volumes/dev/default/bookstore/customers-json`
+AS SELECT * FROM cloud_files("/Volumes/dev/default/bookstore/customers-json", "json",
+                             map("cloudFiles.inferColumnTypes", "true"))
 
 -- COMMAND ----------
 
@@ -94,13 +95,10 @@ AS
 
 -- COMMAND ----------
 
-CREATE OR REFRESH LIVE TABLE fr_daily_customer_books
+CREATE OR REFRESH STREAMING LIVE TABLE fr_daily_customer_books
 COMMENT "Daily number of books per customer in France"
-AS
-  SELECT customer_id, f_name, l_name, date_trunc("DD", order_timestamp) order_date, sum(quantity) books_counts
-  FROM LIVE.orders_cleaned
-  WHERE country = "France"
-  GROUP BY customer_id, f_name, l_name, date_trunc("DD", order_timestamp)
+AS SELECT * FROM cloud_files("/Volumes/dev/default/bookstore/france-orders-json-raw", "json",
+                             map("cloudFiles.inferColumnTypes", "true"))
 
 -- COMMAND ----------
 
